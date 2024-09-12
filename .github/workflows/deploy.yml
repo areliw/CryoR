@@ -1,4 +1,4 @@
-name: Deploy to ShinyApps.io
+name: Deploy to RStudio Connect
 
 on:
   push:
@@ -10,32 +10,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ขั้นตอนการเช็คเอาท์โค้ดจาก repository
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # ขั้นตอนการติดตั้ง R เวอร์ชันที่ต้องการ
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
         with:
-          r-version: '4.1.0'  # เปลี่ยนเป็นเวอร์ชันที่ต้องการ
+          r-version: '4.1.0'  # หรือเวอร์ชันที่คุณต้องการ
 
-      # ขั้นตอนการติดตั้ง dependencies รวมทั้ง rsconnect, shiny และแพ็กเกจอื่น ๆ
       - name: Install dependencies
         run: |
-          Rscript -e 'install.packages(c("rsconnect", "shiny", "dplyr", "ggplot2"))'
-      
-      # ขั้นตอนตรวจสอบว่า rsconnect ถูกติดตั้งเรียบร้อย
-      - name: Verify rsconnect installation
+          Rscript -e 'install.packages("rsconnect")'
+          Rscript -e 'install.packages(c("shiny", "dplyr", "ggplot2"))'
+          
+      - name: Deploy app to RStudio Connect
         run: |
-          Rscript -e 'if (!requireNamespace("rsconnect", quietly = TRUE)) stop("rsconnect not installed")'
-
-      # ขั้นตอนการเชื่อมต่อกับ ShinyApps.io และทำการ deploy
-      - name: Deploy app to ShinyApps.io
-        run: |
-          Rscript -e 'rsconnect::setAccountInfo(name=Sys.getenv("RSCONNECT_USER"), token=Sys.getenv("RSCONNECT_TOKEN"), secret=Sys.getenv("RSCONNECT_SECRET"))'
-          Rscript -e 'rsconnect::deployApp(appFiles = c("app.R", "data"))'
-        env:
-          RSCONNECT_USER: ${{ secrets.RSCONNECT_USER }}
-          RSCONNECT_TOKEN: ${{ secrets.RSCONNECT_TOKEN }}
-          RSCONNECT_SECRET: ${{ secrets.RSCONNECT_SECRET }}
+          Rscript -e "rsconnect::setAccountInfo(name='areliw', token='81AB9A719963DA294CFF86A9A24C319A', secret='kGpCAN7+r1GexSL6vfcAv25XzX4L69AAUUaMdaha')"
+          Rscript -e 'rsconnect::deployApp()'
