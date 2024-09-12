@@ -1,4 +1,4 @@
-name: Deploy to ShinyApps.io
+name: Deploy Shiny App
 
 on:
   push:
@@ -10,35 +10,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v2
 
     - name: Set up R
       uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: '4.0.5'
 
-    - name: Install R package dependencies
+    - name: Install R packages
       run: |
-        # รายชื่อแพ็กเกจที่ต้องการ
-        packages <- c("ggplot2", "googlesheets4", "pwr", "shiny", "rsconnect")
-
-        # ฟังก์ชั่นสำหรับติดตั้งแพ็กเกจที่ขาดหายไป
-        install_if_missing <- function(p) {
-          if (!requireNamespace(p, quietly = TRUE)) {
-            install.packages(p)
-          }
-        }
-
-        # ติดตั้งเฉพาะแพ็กเกจที่ขาดหายไป
-        invisible(sapply(packages, install_if_missing))
+        Rscript -e 'install.packages(c("rsconnect", "curl", "httr", "gargle", "googledrive", "googlesheets4", "yaml"), repos = "http://cran.us.r-project.org")'
       
-      shell: Rscript {0}
-
-    - name: Deploy application
-      env:
-        R_LIBS_USER: ${{ runner.temp }}/Library
-        TZ: UTC
-        _R_CHECK_SYSTEM_CLOCK_: FALSE
-        NOT_CRAN: true
+    - name: Deploy to shinyapps.io
       run: |
         Rscript -e 'rsconnect::setAccountInfo(name="areliw", token="81AB9A719963DA294CFF86A9A24C319A", secret="kGpCAN7+r1GexSL6vfcAv25XzX4L69AAUUaMdaha")'
         Rscript -e 'rsconnect::deployApp(appName = "pbestapp", forceUpdate = TRUE)'
