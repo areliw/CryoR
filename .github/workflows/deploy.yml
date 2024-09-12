@@ -22,19 +22,15 @@ jobs:
     - name: Set R_LIBS_USER environment variable
       run: echo "R_LIBS_USER=~/R/library" >> $GITHUB_ENV
 
-    - name: Cache R packages
-      uses: actions/cache@v2
-      with:
-        path: ~/R/library
-        key: ${{ runner.os }}-r-library-${{ hashFiles('**/DESCRIPTION') }}
-        restore-keys: |
-          ${{ runner.os }}-r-library-
-
     - name: Install R packages
       run: |
-        Rscript -e 'required_packages <- c("rsconnect", "curl", "httr", "gargle", "googledrive", "googlesheets4", "yaml", "ggplot2"); new_packages <- required_packages[!(required_packages %in% installed.packages()[,"Package"])]; if(length(new_packages)) install.packages(new_packages, lib="~/R/library", repos="http://cran.us.r-project.org")'
+        Rscript -e 'required_packages <- c("rsconnect", "curl", "httr", "gargle", "googledrive", "googlesheets4", "yaml", "ggplot2")'
+        Rscript -e 'new_packages <- required_packages[!(required_packages %in% installed.packages()[,"Package"])]'
+        Rscript -e 'if(length(new_packages)) install.packages(new_packages, lib="~/R/library", repos="http://cran.us.r-project.org")'
 
-    - name: Deploy to shinyapps.io
+    - name: Deploy to shinyapps.io with retry
       run: |
-        Rscript -e 'rsconnect::setAccountInfo(name="areliw", token="81AB9A719963DA294CFF86A9A24C319A", secret="kGpCAN7+r1GexSL6vfcAv25XzX4L69AAUUaMdaha")'
-        Rscript -e 'rsconnect::deployApp(appName = "pbestapp", forceUpdate = TRUE)'
+        for i in {1..5}; do
+          Rscript -e 'rsconnect::setAccountInfo(name="areliw", token="81AB9A719963DA294CFF86A9A24C319A", secret="kGpCAN7+r1GexSL6vfcAv25XzX4L69AAUUaMdaha")'
+          Rscript -e 'rsconnect::deployApp(appName = "pbestapp", forceUpdate = TRUE)' && break || echo "Retrying deployment ($i/5)" && sleep 30
+        done
