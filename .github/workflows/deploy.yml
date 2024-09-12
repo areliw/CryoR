@@ -26,8 +26,8 @@ jobs:
 
     - name: Install R packages
       run: |
-        Rscript -e 'if (!requireNamespace("shiny")) install.packages("shiny")'
-        Rscript -e 'if (!requireNamespace("rsconnect")) install.packages("rsconnect")'
+        Rscript -e 'if (!requireNamespace("shiny", quietly = TRUE)) install.packages("shiny")'
+        Rscript -e 'if (!requireNamespace("rsconnect", quietly = TRUE)) install.packages("rsconnect")'
 
     - name: Deploy Shiny App
       env:
