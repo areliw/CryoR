@@ -13,6 +13,12 @@ jobs:
       - name: Install libcurl
         run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
 
-      - name: Install R packages
+      - name: Create writable directory for R packages
+        run: mkdir -p ~/R/library
+
+      - name: Install R packages in the writable directory
         run: |
-          Rscript -e 'install.packages(c("rsconnect", "curl", "httr", "gargle", "googledrive", "googlesheets4", "yaml"), repos = "http://cran.us.r-project.org")'
+          Rscript -e 'install.packages(c("rsconnect", "curl", "httr", "gargle", "googledrive", "googlesheets4", "yaml"), lib="~/R/library", repos = "http://cran.us.r-project.org")'
+
+      - name: Set R_LIBS_USER environment variable
+        run: echo "R_LIBS_USER=~/R/library" >> $GITHUB_ENV
