@@ -7,6 +7,8 @@ ui <- fluidPage(
       h4("Normality Test"),
       actionButton("test_normality", "ทดสอบการกระจายแบบปกติ (Shapiro-Wilk Test)"),
       textOutput("normality_result"),
+      h4("Q-Q Plot for Cryo Volume"),
+      plotOutput("qq_plot"),
       h4("Correlation Analysis"),
       actionButton("analyze_correlation", "วิเคราะห์ความสัมพันธ์ (เลือกแบบอัตโนมัติ)"),
       
