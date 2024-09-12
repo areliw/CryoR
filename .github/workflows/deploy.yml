@@ -22,9 +22,19 @@ jobs:
     - name: Set R_LIBS_USER environment variable
       run: echo "R_LIBS_USER=~/R/library" >> $GITHUB_ENV
 
+    - name: Cache R packages
+      uses: actions/cache@v2
+      with:
+        path: ~/R/library
+        key: ${{ runner.os }}-r-library-${{ hashFiles('**/DESCRIPTION') }}
+        restore-keys: |
+          ${{ runner.os }}-r-library-
+
     - name: Install R packages
       run: |
-        Rscript -e 'install.packages(c("rsconnect", "curl", "httr", "gargle", "googledrive", "googlesheets4", "yaml", "ggplot2"), lib="~/R/library", repos="http://cran.us.r-project.org")'
+        Rscript -e 'required_packages <- c("rsconnect", "curl", "httr", "gargle", "googledrive", "googlesheets4", "yaml", "ggplot2")'
+        Rscript -e 'new_packages <- required_packages[!(required_packages %in% installed.packages()[,"Package"])]'
+        Rscript -e 'if(length(new_packages)) install.packages(new_packages, lib="~/R/library", repos="http://cran.us.r-project.org")'
 
     - name: Deploy to shinyapps.io
       run: |
