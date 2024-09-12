@@ -1,0 +1,18 @@
+name: R-CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install libcurl
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
+
+      - name: Install R packages
+        run: |
+          Rscript -e 'install.packages(c("rsconnect", "curl", "httr", "gargle", "googledrive", "googlesheets4", "yaml"), repos = "http://cran.us.r-project.org")'
