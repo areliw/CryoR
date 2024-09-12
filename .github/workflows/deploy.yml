@@ -22,9 +22,9 @@ jobs:
     - name: Set R_LIBS_USER environment variable
       run: echo "R_LIBS_USER=~/R/library" >> $GITHUB_ENV
 
-    - name: Install R packages
+    - name: Install necessary R packages if not already installed
       run: |
-        Rscript -e 'install.packages(c("rsconnect", "curl", "httr", "gargle", "googledrive", "googlesheets4", "yaml"), lib="~/R/library", repos="http://cran.us.r-project.org")'
+        Rscript -e 'required_packages <- c("shiny", "rsconnect", "curl", "httr", "gargle", "googledrive", "googlesheets4", "yaml"); to_install <- required_packages[!required_packages %in% installed.packages()[,"Package"]]; if(length(to_install)) install.packages(to_install, lib="~/R/library", repos="http://cran.us.r-project.org")'
 
     - name: Deploy to shinyapps.io
       run: |
