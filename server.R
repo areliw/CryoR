@@ -49,6 +49,19 @@ server <- function(input, output) {
     
     return(result_table)
   })
-  
+
+  output$qq_plot <- renderPlot({
+  data <- data_clean()
+  if (is.null(data)) return(NULL)
+
+  # Q-Q plot for Cryo Volume
+  ggplot(data, aes(sample = `Cryo Volume (ml/unit)`)) +
+    stat_qq() +
+    stat_qq_line() +
+    labs(title = "Q-Q Plot for Cryo Volume",
+         x = "Theoretical Quantiles", y = "Sample Quantiles") +
+    theme_minimal()
+})
+
   # ฟังก์ชันอื่น ๆ ใส่ในนี้เช่นกัน
 }
