@@ -17,9 +17,9 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ runner.tool_cache }}/R
-        key: ${{ runner.os }}-R-${{ hashFiles('**/renv.lock') }}
+        key: ${{ runner.os }}-R-${{ hashFiles('**/DESCRIPTION') }}
         restore-keys: |
-          ${{ runner.os }}-R-
+      ${{ runner.os }}-R-
     
     - name: Set up R
       uses: r-lib/actions/setup-r@v2
