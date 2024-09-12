@@ -30,4 +30,4 @@ jobs:
       - name: Deploy app to ShinyApps
         run: |
           Rscript -e 'rsconnect::setAccountInfo(name="areliw", token="81AB9A719963DA294CFF86A9A24C319A", secret="kGpCAN7+r1GexSL6vfcAv25XzX4L69AAUUaMdaha")'
-          Rscript -e 'rsconnect::deployApp(appName = "pbestapp")'
+          Rscript -e 'rsconnect::deployApp(appName = "pbestapp", forceUpdate = TRUE)'
