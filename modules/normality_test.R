@@ -5,10 +5,19 @@ normality_test_module <- function(input, output, data_clean) {
     data <- data_clean()
     req(data)
     
-    test_result <- shapiro.test(as.numeric(data$`Cryo Volume (ml/unit)`))
-    output$normality_result <- renderText({
-      paste("Shapiro-Wilk Test: W =", round(test_result$statistic, 4), 
-            "p-value =", format.p.value(test_result$p.value, digits = 4))
-    })
+    # แปลงคอลัมน์เป็นตัวเลขและลบค่า NA
+    test_data <- as.numeric(data$`Cryo Volume (ml/unit)`)
+    test_data <- test_data[!is.na(test_data)]
+    
+    # ตรวจสอบว่ามีข้อมูลเพียงพอหรือไม่
+    if (length(test_data) < 3) {
+      output$normality_result <- renderText("ไม่สามารถทำการทดสอบได้เนื่องจากจำนวนข้อมูลน้อยเกินไป")
+    } else {
+      test_result <- shapiro.test(test_data)
+      output$normality_result <- renderText({
+        paste("Shapiro-Wilk Test: W =", round(test_result$statistic, 4), 
+              "p-value =", format.p.value(test_result$p.value, digits = 4))
+      })
+    }
   })
 }
