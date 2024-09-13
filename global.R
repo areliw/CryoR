@@ -6,7 +6,6 @@ library(shiny)
 library(pwr)
 library(data.table)
 library(Rcpp)
-# ไม่จำเป็นต้องใช้ future และ promises หากไม่ได้ใช้การประมวลผลแบบขนาน
 
 # ใช้การเข้าถึงแบบไม่ต้องลงชื่อเข้าใช้ (Deauthorize)
 gs4_deauth()
