@@ -1,0 +1,42 @@
+name: Deploy Shiny App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Cache R packages
+      uses: actions/cache@v2
+      with:
+        path: ~/R/library
+        key: ${{ runner.os }}-R-${{ hashFiles('**/DESCRIPTION') }}
+        restore-keys: |
+          ${{ runner.os }}-R-
+
+    - name: Install system dependencies
+      run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
+
+    - name: Create writable directory for R packages
+      run: mkdir -p ~/R/library
+
+    - name: Set R_LIBS_USER environment variable
+      run: echo "R_LIBS_USER=~/R/library" >> $GITHUB_ENV
+
+    - name: Install R packages (only if missing)
+      run: |
+        Rscript -e 'if (!requireNamespace("shiny", quietly = TRUE)) install.packages("shiny", lib="~/R/library", repos="http://cran.us.r-project.org")'
+        Rscript -e 'if (!requireNamespace("pwr", quietly = TRUE)) install.packages("pwr", lib="~/R/library", repos="http://cran.us.r-project.org")'
+        Rscript -e 'if (!requireNamespace("googlesheets4", quietly = TRUE)) install.packages("googlesheets4", lib="~/R/library", repos="http://cran.us.r-project.org")'
+
+    - name: Deploy to shinyapps.io
+      run: |
+        Rscript -e 'rsconnect::setAccountInfo(name="areliw", token="${{ secrets.RSCONNECT_TOKEN }}", secret="${{ secrets.RSCONNECT_SECRET }}")'
+        Rscript -e 'rsconnect::deployApp(appName = "pbestapp", forceUpdate = TRUE)'
