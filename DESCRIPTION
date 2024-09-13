@@ -1,0 +1,13 @@
+Package: pbestapp
+Type: Package
+Title: pbestapp
+Version: 0.1.0
+Author: Your Name
+Maintainer: Your Name <your.email@example.com>
+Description: A Shiny app for data analysis.
+License: MIT
+Imports:
+    shiny,
+    pwr,
+    googlesheets4,
+    ggplot2
