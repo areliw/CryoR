@@ -4,22 +4,19 @@ descriptive_stats_module <- function(input, output, data_clean) {
   output$result_table <- renderTable({
     data <- data_clean()
     req(data)
-    
+
     vars <- c("FFP Volume (ml)", "Cryo Volume (ml/unit)", "Fibrinogen (mg)")
-    result_table <- data.table(Variable = character(), Mean = numeric(), SD = numeric(), Min = numeric(), Max = numeric())
-    
-    for (var in vars) {
-      x <- as.numeric(data[[var]])
-      stats <- compute_stats(x)
-      result_table <- rbind(result_table, data.table(
+    result_table <- lapply(vars, function(var) {
+      x <- data[[var]]
+      data.frame(
         Variable = var,
-        Mean = stats[1],
-        SD = stats[2],
-        Min = stats[3],
-        Max = stats[4]
-      ))
-    }
-    
+        Mean = mean(x, na.rm = TRUE),
+        SD = sd(x, na.rm = TRUE),
+        Min = min(x, na.rm = TRUE),
+        Max = max(x, na.rm = TRUE)
+      )
+    })
+    result_table <- do.call(rbind, result_table)
     return(result_table)
   })
 }
