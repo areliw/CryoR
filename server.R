@@ -7,6 +7,8 @@ source("modules/normality_test.R")
 source("modules/correlation_analysis.R")
 source("modules/power_analysis.R")
 source("modules/plots.R")
+# โหลดโมดูลเพิ่มเติม
+source("modules/summary_table.R")
 
 server <- function(input, output) {
   # ดึงข้อมูลจาก Google Sheets เมื่อกดปุ่ม
@@ -25,4 +27,5 @@ server <- function(input, output) {
   correlation_analysis_module(input, output, data_clean)
   power_analysis_module(input, output)
   plots_module(input, output, data_clean)
+  summary_table_module(input, output, data_clean)  # เรียกใช้โมดูลตารางสรุป
 }
