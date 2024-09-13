@@ -14,7 +14,7 @@ server <- function(input, output) {
       return(NULL)
     })
   })
-  
+
   # แสดงตารางสถิติเชิงพรรณนา
   output$result_table <- renderTable({
     data <- data_clean()
@@ -50,18 +50,64 @@ server <- function(input, output) {
     return(result_table)
   })
 
-  output$qq_plot <- renderPlot({
-  data <- data_clean()
-  if (is.null(data)) return(NULL)
-
   # Q-Q plot for Cryo Volume
-  ggplot(data, aes(sample = `Cryo Volume (ml/unit)`)) +
-    stat_qq() +
-    stat_qq_line() +
-    labs(title = "Q-Q Plot for Cryo Volume",
-         x = "Theoretical Quantiles", y = "Sample Quantiles") +
-    theme_minimal()
-})
+  output$qq_plot <- renderPlot({
+    data <- data_clean()
+    if (is.null(data)) return(NULL)
 
-  # ฟังก์ชันอื่น ๆ ใส่ในนี้เช่นกัน
+    ggplot(data, aes(sample = `Cryo Volume (ml/unit)`)) +
+      stat_qq() +
+      stat_qq_line() +
+      labs(title = "Q-Q Plot for Cryo Volume",
+           x = "Theoretical Quantiles", y = "Sample Quantiles") +
+      theme_minimal()
+  })
+  
+  # ทดสอบการกระจายแบบปกติ (Shapiro-Wilk Test)
+  observeEvent(input$test_normality, {
+    data <- data_clean()
+    if (is.null(data)) return(NULL)
+    
+    test_result <- shapiro.test(data$`Cryo Volume (ml/unit)`)
+    output$normality_result <- renderText({
+      paste("Shapiro-Wilk Test: W =", round(test_result$statistic, 4), 
+            "p-value =", round(test_result$p.value, 4))
+    })
+  })
+
+  # วิเคราะห์ความสัมพันธ์
+  observeEvent(input$analyze_correlation, {
+    data <- data_clean()
+    if (is.null(data)) return(NULL)
+    
+    correlation_result <- cor(data$`Cryo Volume (ml/unit)`, data$`FFP Volume (ml)`, use = "complete.obs")
+    output$correlation_result <- renderText({
+      paste("Correlation between Cryo Volume and FFP Volume:", round(correlation_result, 4))
+    })
+  })
+
+  # วิเคราะห์ Power
+  observeEvent(input$power_analysis, {
+    power_result <- pwr::pwr.t.test(d = input$effect_size, 
+                                    sig.level = input$significance_level, 
+                                    power = input$power, 
+                                    type = "two.sample")
+    output$power_result <- renderText({
+      paste("Sample Size needed:", ceiling(power_result$n))
+    })
+  })
+
+  # แสดง Histogram ของ Time Intervals
+  observeEvent(input$plot_histogram, {
+    data <- data_clean()
+    if (is.null(data)) return(NULL)
+    
+    output$histogram_plot <- renderPlot({
+      ggplot(data, aes(x = time_interval)) +
+        geom_histogram(stat = "count", fill = "skyblue", color = "black") +
+        labs(title = "Histogram of Time Intervals",
+             x = "Time Interval", y = "Count") +
+        theme_minimal()
+    })
+  })
 }
