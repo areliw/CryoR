@@ -6,9 +6,11 @@ server <- function(input, output) {
       data$time_interval <- cut(
         as.numeric(data$`Cryo Storage Duration (Days)`),
         breaks = c(0, 1, 15, 30, 90, 180, Inf),
-        labels = c("1 Days","2-15 days", "16-30 days", "1-3 months", "3-6 months", "6+ months")
+        labels = c("1 Day","2-15 days", "16-30 days", "1-3 months", "3-6 months", "6+ months"),
+        right = FALSE
       )
-      na.omit(data)  # ลบข้อมูลที่มีค่า NA ออก
+      data <- na.omit(data)  # ลบข้อมูลที่มีค่า NA ออก
+      data
     }, error = function(e) {
       showNotification("Error loading Google Sheets data.", type = "error")
       return(NULL)
@@ -20,32 +22,21 @@ server <- function(input, output) {
     data <- data_clean()
     if (is.null(data)) return(NULL)
     
-    mean_ffp <- mean(data$`FFP Volume (ml)`, na.rm = TRUE)
-    median_ffp <- median(data$`FFP Volume (ml)`, na.rm = TRUE)
-    sd_ffp <- sd(data$`FFP Volume (ml)`, na.rm = TRUE)
-    min_ffp <- min(data$`FFP Volume (ml)`, na.rm = TRUE)
-    max_ffp <- max(data$`FFP Volume (ml)`, na.rm = TRUE)
+    vars <- c("FFP Volume (ml)", "Cryo Volume (ml/unit)", "Fibrinogen (mg)")
     
-    mean_cryo <- mean(data$`Cryo Volume (ml/unit)`, na.rm = TRUE)
-    median_cryo <- median(data$`Cryo Volume (ml/unit)`, na.rm = TRUE)
-    sd_cryo <- sd(data$`Cryo Volume (ml/unit)`, na.rm = TRUE)
-    min_cryo <- min(data$`Cryo Volume (ml/unit)`, na.rm = TRUE)
-    max_cryo <- max(data$`Cryo Volume (ml/unit)`, na.rm = TRUE)
+    stats_list <- lapply(vars, function(var) {
+      x <- as.numeric(data[[var]])
+      data.frame(
+        Variable = var,
+        Mean = mean(x, na.rm = TRUE),
+        Median = median(x, na.rm = TRUE),
+        SD = sd(x, na.rm = TRUE),
+        Min = min(x, na.rm = TRUE),
+        Max = max(x, na.rm = TRUE)
+      )
+    })
     
-    mean_fibrinogen <- mean(data$`Fibrinogen (mg)`, na.rm = TRUE)
-    median_fibrinogen <- median(data$`Fibrinogen (mg)`, na.rm = TRUE)
-    sd_fibrinogen <- sd(data$`Fibrinogen (mg)`, na.rm = TRUE)
-    min_fibrinogen <- min(data$`Fibrinogen (mg)`, na.rm = TRUE)
-    max_fibrinogen <- max(data$`Fibrinogen (mg)`, na.rm = TRUE)
-    
-    result_table <- data.frame(
-      Variable = c('FFP Volume (ml)', 'Cryo Volume (ml)', 'Fibrinogen (mg)'),
-      Mean = c(mean_ffp, mean_cryo, mean_fibrinogen),
-      Median = c(median_ffp, median_cryo, median_fibrinogen),
-      SD = c(sd_ffp, sd_cryo, sd_fibrinogen),
-      Min = c(min_ffp, min_cryo, min_fibrinogen),
-      Max = c(max_ffp, max_cryo, max_fibrinogen)
-    )
+    result_table <- do.call(rbind, stats_list)
     
     return(result_table)
   })
@@ -71,7 +62,7 @@ server <- function(input, output) {
     test_result <- shapiro.test(data$`Cryo Volume (ml/unit)`)
     output$normality_result <- renderText({
       paste("Shapiro-Wilk Test: W =", round(test_result$statistic, 4), 
-            "p-value =", round(test_result$p.value, 4))
+            "p-value =", format.p.value(test_result$p.value, digits = 4))
     })
   })
 
@@ -88,26 +79,41 @@ server <- function(input, output) {
 
   # วิเคราะห์ Power
   observeEvent(input$power_analysis, {
-    power_result <- pwr::pwr.t.test(d = input$effect_size, 
-                                    sig.level = input$significance_level, 
-                                    power = input$power, 
-                                    type = "two.sample")
-    output$power_result <- renderText({
-      paste("Sample Size needed:", ceiling(power_result$n))
+    tryCatch({
+      power_result <- pwr::pwr.t.test(d = input$effect_size, 
+                                      sig.level = input$significance_level, 
+                                      power = input$power, 
+                                      type = "two.sample")
+      output$power_result <- renderText({
+        paste("Sample Size needed:", ceiling(power_result$n))
+      })
+    }, error = function(e) {
+      output$power_result <- renderText("Error in power analysis: check your inputs.")
     })
   })
 
   # แสดง Histogram ของ Time Intervals
-  observeEvent(input$plot_histogram, {
+  output$histogram_plot <- renderPlot({
+    data <- data_clean()
+    if (is.null(data)) return(NULL)
+    req(input$plot_histogram)
+    
+    ggplot(data, aes(x = time_interval)) +
+      geom_bar(fill = "skyblue", color = "black") +
+      labs(title = "Histogram of Time Intervals",
+           x = "Time Interval", y = "Count") +
+      theme_minimal()
+  })
+  
+  # สร้าง Scatter Plot
+  output$scatter_plot <- renderPlot({
     data <- data_clean()
     if (is.null(data)) return(NULL)
     
-    output$histogram_plot <- renderPlot({
-      ggplot(data, aes(x = time_interval)) +
-        geom_histogram(stat = "count", fill = "skyblue", color = "black") +
-        labs(title = "Histogram of Time Intervals",
-             x = "Time Interval", y = "Count") +
-        theme_minimal()
-    })
+    ggplot(data, aes(x = `FFP Volume (ml)`, y = `Cryo Volume (ml/unit)`)) +
+      geom_point() +
+      labs(title = "Scatter Plot of Cryo Volume vs FFP Volume",
+           x = "FFP Volume (ml)", y = "Cryo Volume (ml/unit)") +
+      theme_minimal()
   })
 }
