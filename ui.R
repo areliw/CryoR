@@ -1,3 +1,5 @@
+# ui.R
+
 ui <- fluidPage(
   titlePanel("Shiny App for Data Analysis"),
   
@@ -13,7 +15,8 @@ ui <- fluidPage(
       br(),
       
       h3("Correlation Analysis"),
-      actionButton("analyze_correlation", "วิเคราะห์ความสัมพันธ์ (เลือกแบบอัตโนมัติ)", class = "btn-info"),
+      actionButton("analyze_correlation", "วิเคราะห์ความสัมพันธ์", class = "btn-info"),
+      textOutput("correlation_result"),
       br(), br(),
       
       h3("Power Analysis"),
@@ -29,32 +32,22 @@ ui <- fluidPage(
     ),
     
     mainPanel(
-      fluidRow(
-        column(6,
-               h3("สถิติเชิงพรรณนา"),
-               tableOutput("result_table")
+      tabsetPanel(
+        tabPanel("Descriptive Statistics",
+                 h3("สถิติเชิงพรรณนา"),
+                 tableOutput("result_table")
         ),
-        column(6,
-               h3("Q-Q Plot for Cryo Volume"),
-               plotOutput("qq_plot")
-        )
-      ),
-      
-      fluidRow(
-        column(6,
-               h3("ผลการวิเคราะห์ความสัมพันธ์"),
-               textOutput("correlation_result")
+        tabPanel("Q-Q Plot",
+                 h3("Q-Q Plot for Cryo Volume"),
+                 plotOutput("qq_plot")
         ),
-        column(6,
-               h3("Histogram ของ Time Intervals"),
-               plotOutput("histogram_plot")
-        )
-      ),
-      
-      fluidRow(
-        column(12,
-               h3("การกระจายตัว (Scatter Plot)"),
-               plotOutput("scatter_plot")
+        tabPanel("Histogram",
+                 h3("Histogram ของ Time Intervals"),
+                 plotOutput("histogram_plot")
+        ),
+        tabPanel("Scatter Plot",
+                 h3("การกระจายตัว (Scatter Plot)"),
+                 plotOutput("scatter_plot")
         )
       )
     )
