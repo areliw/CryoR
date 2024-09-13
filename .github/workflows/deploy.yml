@@ -13,28 +13,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Cache R packages
-      uses: actions/cache@v2
+    - name: Setup R
+      uses: r-lib/actions/setup-r@v2
+
+    - name: Install R package dependencies
+      uses: r-lib/actions/setup-r-dependencies@v2
       with:
-        path: ~/R/library
-        key: ${{ runner.os }}-R-${{ hashFiles('**/DESCRIPTION') }}
-        restore-keys: |
-          ${{ runner.os }}-R-
-
-    - name: Install system dependencies
-      run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
-
-    - name: Create writable directory for R packages
-      run: mkdir -p ~/R/library
-
-    - name: Set R_LIBS_USER environment variable
-      run: echo "R_LIBS_USER=~/R/library" >> $GITHUB_ENV
-
-    - name: Install R packages (only if missing)
-      run: |
-        Rscript -e 'if (!requireNamespace("shiny", quietly = TRUE)) install.packages("shiny", lib="~/R/library", repos="http://cran.us.r-project.org")'
-        Rscript -e 'if (!requireNamespace("pwr", quietly = TRUE)) install.packages("pwr", lib="~/R/library", repos="http://cran.us.r-project.org")'
-        Rscript -e 'if (!requireNamespace("googlesheets4", quietly = TRUE)) install.packages("googlesheets4", lib="~/R/library", repos="http://cran.us.r-project.org")'
+        extra-packages: rsconnect
 
     - name: Deploy to shinyapps.io
       run: |
