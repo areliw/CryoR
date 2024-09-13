@@ -28,7 +28,11 @@ ui <- fluidPage(
       br(),
       
       h3("Time Interval Histogram"),
-      actionButton("plot_histogram", "แสดง Histogram สำหรับ Time Intervals", class = "btn-warning")
+      actionButton("plot_histogram", "แสดง Histogram สำหรับ Time Intervals", class = "btn-warning"),
+      br(), br(),
+      
+      h3("Summary Table"),
+      actionButton("show_summary_table", "แสดงตารางสรุป", class = "btn-secondary")
     ),
     
     mainPanel(
@@ -44,6 +48,9 @@ ui <- fluidPage(
         ),
         tabPanel("Scatter Plot",
                  plotOutput("scatter_plot")
+        ),
+        tabPanel("Summary Table",
+                 tableOutput("summary_table")
         )
       )
     )
