@@ -16,7 +16,7 @@ normality_test_module <- function(input, output, data_clean) {
       test_result <- shapiro.test(test_data)
       output$normality_result <- renderText({
         paste("Shapiro-Wilk Test: W =", round(test_result$statistic, 4), 
-              "p-value =", format.p.value(test_result$p.value, digits = 4))
+              "p-value =", format.pval(test_result$p.value, digits = 4))
       })
     }
   })
