@@ -33,20 +33,16 @@ ui <- fluidPage(
     
     mainPanel(
       tabsetPanel(
-        tabPanel("Descriptive Statistics",
-                 h3("สถิติเชิงพรรณนา"),
+        tabPanel("สถิติเชิงพรรณนา",
                  tableOutput("result_table")
         ),
         tabPanel("Q-Q Plot",
-                 h3("Q-Q Plot for Cryo Volume"),
                  plotOutput("qq_plot")
         ),
         tabPanel("Histogram",
-                 h3("Histogram ของ Time Intervals"),
                  plotOutput("histogram_plot")
         ),
         tabPanel("Scatter Plot",
-                 h3("การกระจายตัว (Scatter Plot)"),
                  plotOutput("scatter_plot")
         )
       )
