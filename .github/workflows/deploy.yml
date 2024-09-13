@@ -24,9 +24,8 @@ jobs:
 
     - name: Install required R packages
       run: |
-        Rscript -e 'required_packages <- c("rsconnect", "shiny", "curl", "httr", "gargle", "googledrive", "googlesheets4", "yaml", "ggplot2", "pwr")'
-        Rscript -e 'new_packages <- required_packages[!(required_packages %in% installed.packages()[,"Package"])]'
-        Rscript -e 'if(length(new_packages)) install.packages(new_packages, lib="~/R/library", repos="http://cran.us.r-project.org")'
+        Rscript -e 'required_packages <- c("rsconnect", "shiny", "curl", "httr", "gargle", "googledrive", "googlesheets4", "yaml", "ggplot2", "pwr");'
+        Rscript -e 'new_packages <- required_packages[!(required_packages %in% installed.packages()[,"Package"])]; if(length(new_packages)) install.packages(new_packages, lib="~/R/library", repos="http://cran.us.r-project.org")'
 
     - name: Deploy to shinyapps.io
       run: |
