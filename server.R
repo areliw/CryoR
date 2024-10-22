@@ -7,8 +7,7 @@ source("modules/normality_test.R")
 source("modules/correlation_analysis.R")
 source("modules/power_analysis.R")
 source("modules/plots.R")
-# โหลดโมดูลเพิ่มเติม
-source("modules/summary_table.R")
+source("modules/summary_table.R")  # โหลดโมดูลเพิ่มเติม
 
 server <- function(input, output) {
   # ดึงข้อมูลจาก Google Sheets เมื่อกดปุ่ม
@@ -21,7 +20,7 @@ server <- function(input, output) {
     })
   })
   
-  # เรียกใช้โมดูลต่าง ๆ
+  # เรียกใช้โมดูลต่าง ๆ พร้อมการตรวจสอบข้อมูล
   descriptive_stats_module(input, output, data_clean)
   normality_test_module(input, output, data_clean)
   correlation_analysis_module(input, output, data_clean)
@@ -29,3 +28,4 @@ server <- function(input, output) {
   plots_module(input, output, data_clean)
   summary_table_module(input, output, data_clean)  # เรียกใช้โมดูลตารางสรุป
 }
+
