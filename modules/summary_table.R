@@ -5,9 +5,10 @@ summary_table_module <- function(input, output, data_clean) {
     data <- data_clean()
     req(data)
     
-    # แปลงคอลัมน์เป็นตัวเลขและลบค่า NA
-    data <- data[!is.na(data$`Cryo Volume (ml/unit)`), ]
-    data$`Cryo Volume (ml/unit)` <- as.numeric(data$`Cryo Volume (ml/unit)`)
+    if (nrow(data) == 0) {
+      showNotification("ไม่มีข้อมูลเพียงพอในการแสดงตารางสรุป", type = "warning")
+      return(NULL)
+    }
     
     # สร้างตารางสรุปจำนวน Cryo Units ในแต่ละระดับของ Cryo Volume แยกตาม Time Interval
     summary_table <- data[, .N, by = .(`Cryo Volume (ml/unit)`, time_interval)]
