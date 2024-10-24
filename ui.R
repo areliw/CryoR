@@ -1,117 +1,337 @@
 # ui.R
+
 ui <- dashboardPage(
-  dashboardHeader(title = "วิเคราะห์ข้อมูลทางคลินิก"),
+  skin = "blue",
   
-  dashboardSidebar(
-    sidebarMenu(
-      menuItem("ข้อมูล", tabName = "data", icon = icon("database")),
-      menuItem("การวิเคราะห์", tabName = "analysis", icon = icon("chart-line")),
-      menuItem("กราฟ", tabName = "plots", icon = icon("chart-bar")),
-      menuItem("สรุป", tabName = "summary", icon = icon("table"))
+  # Header
+  dashboardHeader(
+    title = "วิเคราะห์ข้อมูลทางคลินิก",
+    titleWidth = 350,
+    tags$li(class = "dropdown",
+      tags$head(
+        tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
+        tags$style(HTML("
+          .content-wrapper { padding-top: 20px; }
+          .box { margin-bottom: 20px; }
+        "))
+      )
     )
   ),
   
+  # Sidebar
+  dashboardSidebar(
+    width = 350,
+    sidebarMenu(
+      id = "sidebar",
+      # ข้อมูล
+      menuItem(
+        text = "ข้อมูล",
+        tabName = "data",
+        icon = icon("database"),
+        startExpanded = TRUE,
+        menuSubItem(
+          text = "โหลดข้อมูล",
+          tabName = "load_data",
+          icon = icon("cloud-download")
+        ),
+        menuSubItem(
+          text = "ดูข้อมูล",
+          tabName = "view_data",
+          icon = icon("table")
+        )
+      ),
+      
+      # การวิเคราะห์
+      menuItem(
+        text = "การวิเคราะห์",
+        tabName = "analysis",
+        icon = icon("chart-line"),
+        startExpanded = TRUE,
+        menuSubItem(
+          text = "สถิติเชิงพรรณนา",
+          tabName = "descriptive",
+          icon = icon("calculator")
+        ),
+        menuSubItem(
+          text = "การทดสอบการแจกแจง",
+          tabName = "normality",
+          icon = icon("chart-bar")
+        ),
+        menuSubItem(
+          text = "การวิเคราะห์สหสัมพันธ์",
+          tabName = "correlation",
+          icon = icon("project-diagram")
+        ),
+        menuSubItem(
+          text = "Power Analysis",
+          tabName = "power",
+          icon = icon("tachometer-alt")
+        )
+      ),
+      
+      # กราฟ
+      menuItem(
+        text = "การแสดงผลกราฟ",
+        tabName = "plots",
+        icon = icon("chart-area"),
+        startExpanded = TRUE,
+        menuSubItem(
+          text = "Q-Q Plot",
+          tabName = "qq_plot",
+          icon = icon("line-chart")
+        ),
+        menuSubItem(
+          text = "Histogram",
+          tabName = "histogram",
+          icon = icon("chart-bar")
+        ),
+        menuSubItem(
+          text = "Scatter Plot",
+          tabName = "scatter",
+          icon = icon("dot-circle")
+        )
+      ),
+      
+      # สรุปผล
+      menuItem(
+        text = "สรุปผล",
+        tabName = "summary",
+        icon = icon("file-alt")
+      )
+    )
+  ),
+  
+  # Body
   dashboardBody(
     useShinyjs(),
-    tags$head(
-      tags$style(HTML("
-        .content-wrapper { overflow: auto; }
-        .box { margin-bottom: 15px; }
-        .shiny-notification { position: fixed; top: 50%; left: 50%; }
-      "))
-    ),
+    
+    # Custom notifications div
+    div(id = "notification-area", style = "position: fixed; top: 20px; right: 20px; z-index: 9999;"),
     
     tabItems(
-      # แท็บข้อมูล
-      tabItem(tabName = "data",
+      # Tab ข้อมูล
+      tabItem(
+        tabName = "load_data",
         fluidRow(
-          safe_box(
-            title = "โหลดและวิเคราะห์ข้อมูล",
+          box(
+            width = 12,
+            title = "โหลดข้อมูลจาก Google Sheets",
             status = "primary",
             solidHeader = TRUE,
-            width = 12,
-            actionButton("load_data", "โหลดข้อมูลจาก Google Sheets", 
-                        class = "btn-primary",
-                        icon = icon("cloud-download")),
+            actionButton(
+              "load_data",
+              "โหลดข้อมูล",
+              icon = icon("cloud-download"),
+              class = "btn-primary btn-lg"
+            ),
+            hr(),
             DTOutput("data_preview")
           )
         )
       ),
       
-      # แท็บวิเคราะห์
-      tabItem(tabName = "analysis",
+      tabItem(
+        tabName = "view_data",
         fluidRow(
-          safe_box(
+          box(
+            width = 12,
+            title = "ข้อมูลทั้งหมด",
+            status = "primary",
+            solidHeader = TRUE,
+            DTOutput("full_data_table")
+          )
+        )
+      ),
+      
+      # Tab สถิติเชิงพรรณนา
+      tabItem(
+        tabName = "descriptive",
+        fluidRow(
+          box(
+            width = 12,
+            title = "สถิติเชิงพรรณนา",
+            status = "info",
+            solidHeader = TRUE,
+            DTOutput("result_table")
+          )
+        )
+      ),
+      
+      # Tab การทดสอบการแจกแจง
+      tabItem(
+        tabName = "normality",
+        fluidRow(
+          box(
+            width = 6,
             title = "การทดสอบการแจกแจงแบบปกติ",
             status = "info",
             solidHeader = TRUE,
-            width = 6,
-            actionButton("test_normality", "ทดสอบการกระจายแบบปกติ", 
-                        class = "btn-info"),
+            actionButton(
+              "test_normality",
+              "ทดสอบการแจกแจง",
+              icon = icon("check"),
+              class = "btn-info"
+            ),
+            hr(),
             verbatimTextOutput("normality_result")
           ),
-          
-          safe_box(
+          box(
+            width = 6,
+            title = "Q-Q Plot",
+            status = "info",
+            solidHeader = TRUE,
+            plotOutput("qq_plot_normality")
+          )
+        )
+      ),
+      
+      # Tab การวิเคราะห์สหสัมพันธ์
+      tabItem(
+        tabName = "correlation",
+        fluidRow(
+          box(
+            width = 6,
             title = "การวิเคราะห์สหสัมพันธ์",
             status = "info",
             solidHeader = TRUE,
-            width = 6,
-            actionButton("analyze_correlation", "วิเคราะห์ความสัมพันธ์", 
-                        class = "btn-info"),
+            actionButton(
+              "analyze_correlation",
+              "วิเคราะห์สหสัมพันธ์",
+              icon = icon("calculator"),
+              class = "btn-info"
+            ),
+            hr(),
             verbatimTextOutput("correlation_result")
+          ),
+          box(
+            width = 6,
+            title = "Scatter Plot",
+            status = "info",
+            solidHeader = TRUE,
+            plotOutput("correlation_plot")
           )
-        ),
-        
+        )
+      ),
+      
+      # Tab Power Analysis
+      tabItem(
+        tabName = "power",
         fluidRow(
-          safe_box(
+          box(
+            width = 6,
             title = "Power Analysis",
             status = "success",
             solidHeader = TRUE,
-            width = 12,
-            numericInput("effect_size", "Effect Size:", 
-                        value = 0.5, min = 0),
-            numericInput("significance_level", "ระดับนัยสำคัญ (Alpha):", 
-                        value = 0.05, min = 0, max = 1, step = 0.01),
-            numericInput("power", "Power (1 - Beta):", 
-                        value = 0.8, min = 0, max = 1, step = 0.01),
-            actionButton("power_analysis", "วิเคราะห์ Power", 
-                        class = "btn-success"),
+            numericInput(
+              "effect_size",
+              "Effect Size:",
+              value = 0.5,
+              min = 0,
+              step = 0.1
+            ),
+            numericInput(
+              "significance_level",
+              "ระดับนัยสำคัญ (Alpha):",
+              value = 0.05,
+              min = 0,
+              max = 1,
+              step = 0.01
+            ),
+            numericInput(
+              "power",
+              "Power (1 - Beta):",
+              value = 0.8,
+              min = 0,
+              max = 1,
+              step = 0.01
+            ),
+            actionButton(
+              "power_analysis",
+              "วิเคราะห์ Power",
+              icon = icon("calculator"),
+              class = "btn-success"
+            ),
+            hr(),
             verbatimTextOutput("power_result")
+          ),
+          box(
+            width = 6,
+            title = "คำอธิบาย Power Analysis",
+            status = "success",
+            solidHeader = TRUE,
+            includeMarkdown("www/power_analysis_info.md")
           )
         )
       ),
       
-      # แท็บกราฟ
-      tabItem(tabName = "plots",
+      # Tab กราฟ
+      tabItem(
+        tabName = "qq_plot",
         fluidRow(
-          safe_box(
-            title = "การแสดงผลกราฟ",
+          box(
+            width = 12,
+            title = "Q-Q Plot",
             status = "warning",
             solidHeader = TRUE,
-            width = 12,
-            tabsetPanel(
-              tabPanel("Q-Q Plot", plotOutput("qq_plot")),
-              tabPanel("Histogram", 
-                      actionButton("plot_histogram", "แสดง Histogram", 
-                                  class = "btn-warning"),
-                      plotOutput("histogram_plot")),
-              tabPanel("Scatter Plot", plotOutput("scatter_plot")),
-              tabPanel("Cryo-Fibrinogen", plotOutput("cryo_fibrinogen_plot"))
-            )
+            plotOutput("qq_plot", height = "600px")
           )
         )
       ),
       
-      # แท็บสรุป
-      tabItem(tabName = "summary",
+      tabItem(
+        tabName = "histogram",
         fluidRow(
-          safe_box(
-            title = "ตารางสรุป",
+          box(
+            width = 12,
+            title = "Histogram",
+            status = "warning",
+            solidHeader = TRUE,
+            actionButton(
+              "plot_histogram",
+              "แสดง Histogram",
+              icon = icon("chart-bar"),
+              class = "btn-warning"
+            ),
+            hr(),
+            plotOutput("histogram_plot", height = "600px")
+          )
+        )
+      ),
+      
+      tabItem(
+        tabName = "scatter",
+        fluidRow(
+          box(
+            width = 12,
+            title = "Scatter Plot",
+            status = "warning",
+            solidHeader = TRUE,
+            plotOutput("scatter_plot", height = "600px")
+          )
+        )
+      ),
+      
+      # Tab สรุปผล
+      tabItem(
+        tabName = "summary",
+        fluidRow(
+          box(
+            width = 12,
+            title = "ตารางสรุปผลการวิเคราะห์",
             status = "primary",
             solidHeader = TRUE,
-            width = 12,
-            actionButton("show_summary_table", "แสดงตารางสรุป", 
-                        class = "btn-secondary"),
+            actionButton(
+              "show_summary_table",
+              "แสดงตารางสรุป",
+              icon = icon("table"),
+              class = "btn-primary"
+            ),
+            downloadButton(
+              "download_summary",
+              "ดาวน์โหลดรายงาน",
+              class = "btn-success"
+            ),
+            hr(),
             DTOutput("summary_table")
           )
         )
