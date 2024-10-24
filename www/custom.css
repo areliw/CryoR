@@ -1,217 +1,127 @@
 /* www/custom.css */
 
-/* ปรับแต่ง Dashboard โดยรวม */
-.content-wrapper, .right-side {
-    background-color: #f4f6f9;
+/* ปรับแต่งฟอนต์และพื้นหลัง */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #121212;
+    color: #ECEFF1;
 }
 
+/* ส่วนหัว */
 .skin-blue .main-header .logo {
-    background-color: #2c3e50;
+    background-color: #1E1E1E;
+    color: #00BCD4;
+    font-weight: bold;
+    font-size: 24px;
 }
 
 .skin-blue .main-header .navbar {
-    background-color: #34495e;
+    background-color: #1E1E1E;
 }
 
-/* ปรับแต่งปุ่มต่างๆ */
+.skin-blue .main-header .navbar .sidebar-toggle {
+    color: #00BCD4;
+}
+
+/* แถบด้านข้าง */
+.skin-blue .main-sidebar {
+    background: linear-gradient(180deg, #1E1E1E, #2A2A2A);
+}
+
+.skin-blue .sidebar-menu>li>a {
+    color: #B0BEC5;
+}
+
+.skin-blue .sidebar-menu>li.active>a,
+.skin-blue .sidebar-menu>li:hover>a {
+    background-color: #1E1E1E;
+    color: #00BCD4;
+}
+
+/* กล่อง */
+.box {
+    background-color: #1E1E1E;
+    border-top: 3px solid #00BCD4;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.box .box-header {
+    color: #00BCD4;
+}
+
+/* ปุ่ม */
+.btn {
+    border-radius: 20px;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
 .btn-primary {
-    background-color: #3498db;
-    border-color: #2980b9;
-    transition: all 0.3s ease;
+    background-color: #00BCD4;
+    border-color: #00BCD4;
+    color: #FFFFFF;
 }
 
 .btn-primary:hover {
-    background-color: #2980b9;
-    border-color: #2573a7;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    background-color: #0097A7;
+    border-color: #0097A7;
 }
 
-.btn-info {
-    background-color: #2ecc71;
-    border-color: #27ae60;
-}
-
-.btn-warning {
-    background-color: #f1c40f;
-    border-color: #f39c12;
-}
-
-/* ปรับแต่ง Box */
-.box {
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    border-top: 3px solid #3498db;
-    margin-bottom: 20px;
-}
-
-.box-primary {
-    border-top-color: #3498db;
-}
-
-.box-info {
-    border-top-color: #2ecc71;
-}
-
-.box-warning {
-    border-top-color: #f1c40f;
-}
-
-/* ปรับแต่งตาราง */
+/* ตาราง */
 .dataTable {
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+    background-color: #1E1E1E;
+    color: #ECEFF1;
 }
 
-.dataTables_wrapper .table thead th {
-    background-color: #f8f9fa;
-    border-bottom: 2px solid #dee2e6;
-    padding: 12px 8px;
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    color: #FFFFFF !important;
 }
 
-.dataTables_wrapper .table tbody td {
-    padding: 10px 8px;
-    vertical-align: middle;
-}
-
-/* ปรับแต่ง Input */
+/* อินพุต */
 .form-control {
-    border-radius: 4px;
-    border: 1px solid #dce4ec;
-    padding: 8px 12px;
-    transition: border-color 0.3s ease;
+    background-color: #2A2A2A;
+    color: #ECEFF1;
+    border: 1px solid #00BCD4;
+    border-radius: 5px;
 }
 
-.form-control:focus {
-    border-color: #3498db;
-    box-shadow: none;
-}
-
-/* ปรับแต่ง Notification */
+/* การแจ้งเตือน */
 .shiny-notification {
-    border-radius: 8px;
-    padding: 15px 20px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    background-color: #2A2A2A;
+    color: #ECEFF1;
+    border-left: 5px solid #00BCD4;
 }
 
-/* ปรับแต่ง Loading Screen */
-.shiny-busy-indicator {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(255,255,255,0.9);
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-/* ปรับแต่ง Plot */
+/* กราฟ */
 .plot-container {
-    background-color: white;
-    border-radius: 8px;
+    background-color: #1E1E1E;
+    border-radius: 10px;
     padding: 15px;
-    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
 }
 
-/* ปรับแต่ง Sidebar */
-.skin-blue .main-sidebar {
-    background-color: #2c3e50;
+/* Scrollbar แบบกำหนดเอง */
+::-webkit-scrollbar {
+    width: 8px;
 }
 
-.skin-blue .sidebar-menu>li.active>a, 
-.skin-blue .sidebar-menu>li:hover>a {
-    background-color: #34495e;
-    border-left-color: #3498db;
+::-webkit-scrollbar-track {
+    background: #1E1E1E;
 }
 
-/* ปรับแต่ง Tab panels */
-.nav-tabs-custom {
-    box-shadow: none;
-    border-radius: 8px;
-    overflow: hidden;
+::-webkit-scrollbar-thumb {
+    background: #00BCD4;
+    border-radius: 10px;
 }
 
-.nav-tabs-custom>.nav-tabs>li.active {
-    border-top-color: #3498db;
-}
-
-/* ปรับแต่ง Value boxes */
-.small-box {
-    border-radius: 8px;
-    transition: transform 0.3s ease;
-}
-
-.small-box:hover {
-    transform: translateY(-5px);
-}
-
-/* ปรับแต่ง Progress bars */
-.progress {
-    height: 8px;
-    border-radius: 4px;
-    background-color: #ecf0f1;
-    margin-bottom: 10px;
-}
-
-.progress-bar {
-    background-color: #3498db;
-}
-
-/* Custom classes สำหรับใช้งานเฉพาะ */
-.stat-box {
-    padding: 15px;
-    background-color: white;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    border-left: 4px solid #3498db;
-}
-
-.highlight-text {
-    color: #3498db;
-    font-weight: bold;
-}
-
-.error-text {
-    color: #e74c3c;
-}
-
-.success-text {
-    color: #2ecc71;
-}
-
-.warning-text {
-    color: #f1c40f;
-}
-
-/* Responsive adjustments */
+/* การปรับแต่งสำหรับหน้าจอขนาดเล็ก */
 @media (max-width: 768px) {
-    .box {
-        margin-bottom: 15px;
-    }
-    
-    .btn {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-    
-    .dataTables_wrapper {
-        overflow-x: auto;
-    }
-}
-
-/* Print styles */
-@media print {
-    .no-print {
-        display: none !important;
-    }
-    
-    .print-only {
-        display: block !important;
-    }
-    
-    .box {
-        break-inside: avoid;
+    .sidebar-mini.sidebar-collapse .main-sidebar,
+    .sidebar-mini.sidebar-collapse .main-header .logo {
+        width: 70px !important;
     }
 }
