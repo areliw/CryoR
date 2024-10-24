@@ -50,24 +50,20 @@ jobs:
     - name: Install R dependencies
       run: |
         Rscript -e '
-          if (!require("pak", quietly = TRUE)) {
-            install.packages("pak", repos = "https://r-lib.github.io/p/pak/stable/")
-          }
-          pak::pkg_install(c(
+          install.packages(c(
             "rsconnect",
-            "shiny@1.9.1",
-            "shinydashboard@0.7.2",
-            "shinyjs@2.1.0",
-            "DT@0.27",
-            "googlesheets4@1.1.0",
-            "ggplot2@3.4.0",
-            "data.table@1.14.8",
-            "Rcpp@1.0.10",
-            "memoise@2.0.1",
-            "pwr@1.3.0",
-            "htmltools@0.5.8.1"
-          ))
-        '
+            "shiny",
+            "shinydashboard",
+            "shinyjs",
+            "DT",
+            "googlesheets4",
+            "ggplot2",
+            "data.table",
+            "Rcpp",
+            "memoise",
+            "pwr",
+            "htmltools"
+          ), repos = "https://cloud.r-project.org/")'
 
     - name: Validate environment
       run: |
