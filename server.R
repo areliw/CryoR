@@ -1,31 +1,63 @@
 # server.R
-
-# โหลดโมดูล
-source("modules/data_loading.R")
-source("modules/descriptive_stats.R")
-source("modules/normality_test.R")
-source("modules/correlation_analysis.R")
-source("modules/power_analysis.R")
-source("modules/plots.R")
-source("modules/summary_table.R")  # โหลดโมดูลเพิ่มเติม
-
-server <- function(input, output) {
-  # ดึงข้อมูลจาก Google Sheets เมื่อกดปุ่ม
-  data_clean <- eventReactive(input$load_data, {
-    tryCatch({
-      load_data_module(sheet_url)
-    }, error = function(e) {
-      showNotification("Error loading Google Sheets data.", type = "error")
-      return(NULL)
-    })
+server <- function(input, output, session) {
+  rv <- reactiveValues(
+    data = NULL,
+    error = NULL,
+    loading = FALSE
+  )
+  
+  # Data loading
+  observeEvent(input$load_data, {
+    rv$loading <- TRUE
+    withProgress(
+      message = 'กำลังโหลดข้อมูล...',
+      value = 0,
+      {
+        tryCatch({
+          data <- load_data_module(sheet_url)
+          rv$data <- data
+          rv$loading <- FALSE
+          showNotification("โหลดข้อมูลสำเร็จ!", type = "success")
+          
+          # Preview data
+          output$data_preview <- renderDT({
+            datatable(rv$data,
+                     options = list(pageLength = 10,
+                                  scrollX = TRUE),
+                     rownames = FALSE)
+          })
+          
+        }, error = function(e) {
+          rv$error <- e$message
+          rv$loading <- FALSE
+          showNotification(paste("เกิดข้อผิดพลาด:", e$message), type = "error")
+        })
+      }
+    )
   })
   
-  # เรียกใช้โมดูลต่าง ๆ พร้อมการตรวจสอบข้อมูล
-  descriptive_stats_module(input, output, data_clean)
-  normality_test_module(input, output, data_clean)
-  correlation_analysis_module(input, output, data_clean)
+  # Enable/disable UI elements
+  observe({
+    if (is.null(rv$data)) {
+      disable("test_normality")
+      disable("analyze_correlation")
+      disable("power_analysis")
+      disable("plot_histogram")
+      disable("show_summary_table")
+    } else {
+      enable("test_normality")
+      enable("analyze_correlation")
+      enable("power_analysis")
+      enable("plot_histogram")
+      enable("show_summary_table")
+    }
+  })
+  
+  # Call modules
+  descriptive_stats_module(input, output, reactive(rv$data))
+  normality_test_module(input, output, reactive(rv$data))
+  correlation_analysis_module(input, output, reactive(rv$data))
   power_analysis_module(input, output)
-  plots_module(input, output, data_clean)
-  summary_table_module(input, output, data_clean)  # เรียกใช้โมดูลตารางสรุป
+  plots_module(input, output, reactive(rv$data))
+  summary_table_module(input, output, reactive(rv$data))
 }
-
