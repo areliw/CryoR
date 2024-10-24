@@ -6,18 +6,9 @@ ui <- dashboardPage(
   # Header
   dashboardHeader(
     title = "วิเคราะห์ข้อมูลทางคลินิก",
-    titleWidth = 350,
-    tags$li(class = "dropdown",
-      tags$head(
-        tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
-        tags$style(HTML("
-          .content-wrapper { padding-top: 20px; }
-          .box { margin-bottom: 20px; }
-        "))
-      )
-    )
+    titleWidth = 350
   ),
-  
+
   # Sidebar
   dashboardSidebar(
     width = 350,
@@ -78,7 +69,7 @@ ui <- dashboardPage(
         menuSubItem(
           text = "Q-Q Plot",
           tabName = "qq_plot",
-          icon = icon("line-chart")
+          icon = icon("chart-line")
         ),
         menuSubItem(
           text = "Histogram",
@@ -88,7 +79,7 @@ ui <- dashboardPage(
         menuSubItem(
           text = "Scatter Plot",
           tabName = "scatter",
-          icon = icon("dot-circle")
+          icon = icon("chart-scatter")
         )
       ),
       
@@ -103,10 +94,21 @@ ui <- dashboardPage(
   
   # Body
   dashboardBody(
+    # Load custom CSS
+    tags$head(
+      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
+      tags$style(HTML("
+        .content-wrapper { padding-top: 20px; }
+        .box { margin-bottom: 20px; }
+        .loading-spinner { margin: 20px; }
+      "))
+    ),
+    
     useShinyjs(),
     
-    # Custom notifications div
-    div(id = "notification-area", style = "position: fixed; top: 20px; right: 20px; z-index: 9999;"),
+    # Custom notifications
+    div(id = "notification-area", 
+        style = "position: fixed; top: 20px; right: 20px; z-index: 9999;"),
     
     tabItems(
       # Tab ข้อมูล
@@ -118,11 +120,21 @@ ui <- dashboardPage(
             title = "โหลดข้อมูลจาก Google Sheets",
             status = "primary",
             solidHeader = TRUE,
-            actionButton(
-              "load_data",
-              "โหลดข้อมูล",
-              icon = icon("cloud-download"),
-              class = "btn-primary btn-lg"
+            div(
+              class = "text-center",
+              actionButton(
+                "load_data",
+                "โหลดข้อมูล",
+                icon = icon("cloud-download"),
+                class = "btn-primary btn-lg",
+                style = "margin: 20px;"
+              )
+            ),
+            div(
+              id = "loading-spinner",
+              class = "loading-spinner",
+              style = "display: none;",
+              tags$i(class = "fa fa-spinner fa-spin fa-3x")
             ),
             hr(),
             DTOutput("data_preview")
@@ -130,6 +142,7 @@ ui <- dashboardPage(
         )
       ),
       
+      # Tab ดูข้อมูล
       tabItem(
         tabName = "view_data",
         fluidRow(
@@ -259,12 +272,34 @@ ui <- dashboardPage(
             title = "คำอธิบาย Power Analysis",
             status = "success",
             solidHeader = TRUE,
-            includeMarkdown("www/power_analysis_info.md")
+            tags$div(
+              class = "well",
+              tags$h4("คำอธิบาย Power Analysis"),
+              tags$p("Power Analysis คือการวิเคราะห์เพื่อกำหนดขนาดตัวอย่างที่เหมาะสม 
+                     โดยพิจารณาจากปัจจัยต่างๆ ดังนี้:"),
+              tags$ul(
+                tags$li(HTML("<strong>Effect Size:</strong> ขนาดของความแตกต่างที่ต้องการตรวจพบ
+                            <ul>
+                              <li>0.2: ผลขนาดเล็ก</li>
+                              <li>0.5: ผลขนาดปานกลาง</li>
+                              <li>0.8: ผลขนาดใหญ่</li>
+                            </ul>")),
+                tags$li(HTML("<strong>Alpha (ระดับนัยสำคัญ):</strong> โอกาสในการเกิด Type I Error 
+                            (การปฏิเสธ H0 ทั้งที่ H0 เป็นจริง)")),
+                tags$li(HTML("<strong>Power:</strong> โอกาสในการตรวจพบความแตกต่างที่มีอยู่จริง 
+                            (1 - โอกาสในการเกิด Type II Error)"))
+              ),
+              tags$p("ค่าที่นิยมใช้:", 
+                    tags$br(),
+                    "Alpha = 0.05", 
+                    tags$br(),
+                    "Power = 0.80")
+            )
           )
         )
       ),
       
-      # Tab กราฟ
+      # Tab Q-Q Plot
       tabItem(
         tabName = "qq_plot",
         fluidRow(
@@ -278,6 +313,7 @@ ui <- dashboardPage(
         )
       ),
       
+      # Tab Histogram
       tabItem(
         tabName = "histogram",
         fluidRow(
@@ -298,6 +334,7 @@ ui <- dashboardPage(
         )
       ),
       
+      # Tab Scatter Plot
       tabItem(
         tabName = "scatter",
         fluidRow(
@@ -320,16 +357,19 @@ ui <- dashboardPage(
             title = "ตารางสรุปผลการวิเคราะห์",
             status = "primary",
             solidHeader = TRUE,
-            actionButton(
-              "show_summary_table",
-              "แสดงตารางสรุป",
-              icon = icon("table"),
-              class = "btn-primary"
-            ),
-            downloadButton(
-              "download_summary",
-              "ดาวน์โหลดรายงาน",
-              class = "btn-success"
+            div(
+              style = "margin-bottom: 20px;",
+              actionButton(
+                "show_summary_table",
+                "แสดงตารางสรุป",
+                icon = icon("table"),
+                class = "btn-primary"
+              ),
+              downloadButton(
+                "download_summary",
+                "ดาวน์โหลดรายงาน",
+                class = "btn-success"
+              )
             ),
             hr(),
             DTOutput("summary_table")
