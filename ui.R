@@ -3,7 +3,7 @@ library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(DT)
-library(shinyBS)  # เพิ่มการเรียกใช้แพ็กเกจนี้
+library(shinyBS)
 
 ui <- dashboardPage(
   skin = "blue",
