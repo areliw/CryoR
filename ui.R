@@ -1,14 +1,20 @@
 # ui.R
+library(shiny)
+library(shinydashboard)
+library(shinyjs)
+library(DT)
+library(shinyBS)  # เพิ่มการเรียกใช้แพ็กเกจนี้
+
 ui <- dashboardPage(
   skin = "blue",
   
   dashboardHeader(
-    title = "วิเคราะห์ข้อมูลทางคลินิก",
-    titleWidth = 350
+    title = "แอปพลิเคชันวิเคราะห์ข้อมูลทางคลินิก",
+    titleWidth = 300
   ),
   
   dashboardSidebar(
-    width = 350,
+    width = 300,
     sidebarMenu(
       id = "sidebar",
       menuItem("ข้อมูล", tabName = "data", icon = icon("database"),
@@ -33,7 +39,8 @@ ui <- dashboardPage(
   dashboardBody(
     useShinyjs(),
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
+      tags$link(rel = "stylesheet", href = "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap")
     ),
     
     tabItems(
@@ -56,12 +63,7 @@ ui <- dashboardPage(
                 style = "margin: 20px;"
               )
             ),
-            div(
-              id = "loading-spinner",
-              class = "loading-spinner",
-              style = "display: none;",
-              tags$i(class = "fa fa-spinner fa-spin fa-3x")
-            ),
+            bsTooltip("load_data", "คลิกเพื่อโหลดข้อมูลจาก Google Sheets", placement = "right", options = list(container = "body")),
             hr(),
             DTOutput("data_preview")
           )
@@ -111,6 +113,7 @@ ui <- dashboardPage(
               icon = icon("check"),
               class = "btn-info"
             ),
+            bsTooltip("test_normality", "คลิกเพื่อทดสอบการแจกแจงแบบปกติของข้อมูล", placement = "right", options = list(container = "body")),
             hr(),
             verbatimTextOutput("normality_result")
           ),
@@ -139,6 +142,7 @@ ui <- dashboardPage(
               icon = icon("calculator"),
               class = "btn-info"
             ),
+            bsTooltip("analyze_correlation", "คลิกเพื่อวิเคราะห์สหสัมพันธ์ระหว่างตัวแปร", placement = "right", options = list(container = "body")),
             hr(),
             verbatimTextOutput("correlation_result")
           ),
@@ -168,6 +172,7 @@ ui <- dashboardPage(
               min = 0,
               step = 0.1
             ),
+            bsTooltip("effect_size", "ใส่ขนาดผลที่คาดหวัง (เช่น 0.5 สำหรับขนาดปานกลาง)", placement = "right", options = list(container = "body")),
             numericInput(
               "significance_level",
               "ระดับนัยสำคัญ (Alpha):",
@@ -176,6 +181,7 @@ ui <- dashboardPage(
               max = 1,
               step = 0.01
             ),
+            bsTooltip("significance_level", "ใส่ระดับนัยสำคัญที่ต้องการ (เช่น 0.05)", placement = "right", options = list(container = "body")),
             numericInput(
               "power",
               "Power (1 - Beta):",
@@ -184,12 +190,14 @@ ui <- dashboardPage(
               max = 1,
               step = 0.01
             ),
+            bsTooltip("power", "ใส่ค่า Power ที่ต้องการ (เช่น 0.8)", placement = "right", options = list(container = "body")),
             actionButton(
               "power_analysis",
               "วิเคราะห์ Power",
               icon = icon("calculator"),
               class = "btn-success"
             ),
+            bsTooltip("power_analysis", "คลิกเพื่อคำนวณขนาดตัวอย่างที่ต้องการ", placement = "right", options = list(container = "body")),
             hr(),
             verbatimTextOutput("power_result")
           ),
@@ -254,6 +262,7 @@ ui <- dashboardPage(
               icon = icon("chart-bar"),
               class = "btn-warning"
             ),
+            bsTooltip("plot_histogram", "คลิกเพื่อแสดง Histogram ของ Cryo Volume", placement = "right", options = list(container = "body")),
             hr(),
             plotOutput("histogram_plot", height = "600px")
           )
@@ -291,6 +300,7 @@ ui <- dashboardPage(
                 icon = icon("table"),
                 class = "btn-primary"
               ),
+              bsTooltip("show_summary_table", "คลิกเพื่อแสดงตารางสรุปผลการวิเคราะห์", placement = "right", options = list(container = "body")),
               downloadButton(
                 "download_summary",
                 "ดาวน์โหลดรายงาน",
