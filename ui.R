@@ -79,7 +79,7 @@ ui <- dashboardPage(
         menuSubItem(
           text = "Scatter Plot",
           tabName = "scatter",
-          icon = icon("chart-scatter")
+          icon = icon("scatter-plot")
         )
       ),
       
