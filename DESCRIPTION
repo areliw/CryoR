@@ -1,16 +1,31 @@
 Package: pbestapp
-Type: Package
-Title: pbestapp
-Version: 0.1.0
+Type: Shiny
+Title: Clinical Data Analysis Application
+Version: 1.0.0
 Author: Phanuphong Tameesak
 Maintainer: Phanuphong Tameesak <areliw11111@gmail.com>
-Description: A Shiny app for data analysis.
+Description: แอปพลิเคชันวิเคราะห์ข้อมูลทางคลินิก สำหรับการวิเคราะห์ข้อมูล Cryo และ FFP
 License: MIT
+Encoding: UTF-8
+Depends:
+    R (>= 4.4.1)
 Imports:
-    shiny,
-    pwr,
-    googlesheets4,
-    ggplot2,
-    data.table,
-    Rcpp
+    shiny (>= 1.9.1),
+    shinydashboard (>= 0.7.2),
+    shinyjs (>= 2.1.0),
+    DT (>= 0.27),
+    googlesheets4 (>= 1.1.0),
+    ggplot2 (>= 3.4.0),
+    data.table (>= 1.14.8),
+    Rcpp (>= 1.0.10),
+    memoise (>= 2.0.1),
+    pwr (>= 1.3.0),
+    htmltools (>= 0.5.8.1),
+    markdown,
+    rmarkdown
 LinkingTo: Rcpp
+Suggests:
+    testthat (>= 3.0.0),
+    knitr
+Config/testthat/edition: 3
+RoxygenNote: 7.2.3
