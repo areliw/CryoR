@@ -39,7 +39,7 @@ validate_data <- function(data) {
 
 load_data_module <- function(sheet_url) {
   tryCatch({
-    # โหลดข้อมูล
+    # โหลดข้อมูลจากชีตชื่อ "CryoR"
     data <- memoised_read_sheet(sheet_url, sheet = "CryoR", col_types = "c")
     
     # ตรวจสอบข้อมูล
