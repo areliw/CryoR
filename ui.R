@@ -1,92 +1,119 @@
 # ui.R
-
-ui <- fluidPage(
-  titlePanel("Shiny App for Data Analysis"),
+ui <- dashboardPage(
+  dashboardHeader(title = "วิเคราะห์ข้อมูลทางคลินิก"),
   
-  sidebarLayout(
-    # Sidebar Panel
-    sidebarPanel(
-      h3("Load and Analyze Data"),
-      actionButton("load_data", "โหลดข้อมูลจาก Google Sheets", class = "btn-primary"),
-      br(), br(),
-      
-      h3("Normality Test"),
-      actionButton("test_normality", "ทดสอบการกระจายแบบปกติ (Shapiro-Wilk Test)", 
-                  class = "btn-info"),
-      textOutput("normality_result"),
-      br(),
-      
-      h3("Correlation Analysis"),
-      actionButton("analyze_correlation", "วิเคราะห์ความสัมพันธ์", 
-                  class = "btn-info"),
-      textOutput("correlation_result"),
-      br(), br(),
-      
-      h3("Power Analysis"),
-      numericInput("effect_size", "Effect Size:", 
-                  value = 0.5, min = 0),
-      numericInput("significance_level", "Significance Level (Alpha):", 
-                  value = 0.05, min = 0, max = 1, step = 0.01),
-      numericInput("power", "Power (1 - Beta):", 
-                  value = 0.8, min = 0, max = 1, step = 0.01),
-      actionButton("power_analysis", "วิเคราะห์ Power", 
-                  class = "btn-success"),
-      textOutput("power_result"),
-      br(),
-      
-      h3("Time Interval Histogram"),
-      actionButton("plot_histogram", "แสดง Histogram สำหรับ Time Intervals", 
-                  class = "btn-warning"),
-      br(), br(),
-      
-      h3("Summary Table"),
-      actionButton("show_summary_table", "แสดงตารางสรุป", 
-                  class = "btn-secondary")
+  dashboardSidebar(
+    sidebarMenu(
+      menuItem("ข้อมูล", tabName = "data", icon = icon("database")),
+      menuItem("การวิเคราะห์", tabName = "analysis", icon = icon("chart-line")),
+      menuItem("กราฟ", tabName = "plots", icon = icon("chart-bar")),
+      menuItem("สรุป", tabName = "summary", icon = icon("table"))
+    )
+  ),
+  
+  dashboardBody(
+    useShinyjs(),
+    tags$head(
+      tags$style(HTML("
+        .content-wrapper { overflow: auto; }
+        .box { margin-bottom: 15px; }
+        .shiny-notification { position: fixed; top: 50%; left: 50%; }
+      "))
     ),
     
-    # Main Panel
-    mainPanel(
-      tabsetPanel(
-        # แท็บเดิม
-        tabPanel("สถิติเชิงพรรณนา",
-                 tableOutput("result_table")
-        ),
-        tabPanel("Q-Q Plot",
-                 plotOutput("qq_plot")
-        ),
-        tabPanel("Histogram",
-                 plotOutput("histogram_plot")
-        ),
-        tabPanel("Scatter Plot",
-                 plotOutput("scatter_plot")
-        ),
-        tabPanel("Summary Table",
-                 tableOutput("summary_table")
+    tabItems(
+      # แท็บข้อมูล
+      tabItem(tabName = "data",
+        fluidRow(
+          safe_box(
+            title = "โหลดและวิเคราะห์ข้อมูล",
+            status = "primary",
+            solidHeader = TRUE,
+            width = 12,
+            actionButton("load_data", "โหลดข้อมูลจาก Google Sheets", 
+                        class = "btn-primary",
+                        icon = icon("cloud-download")),
+            DTOutput("data_preview")
+          )
+        )
+      ),
+      
+      # แท็บวิเคราะห์
+      tabItem(tabName = "analysis",
+        fluidRow(
+          safe_box(
+            title = "การทดสอบการแจกแจงแบบปกติ",
+            status = "info",
+            solidHeader = TRUE,
+            width = 6,
+            actionButton("test_normality", "ทดสอบการกระจายแบบปกติ", 
+                        class = "btn-info"),
+            verbatimTextOutput("normality_result")
+          ),
+          
+          safe_box(
+            title = "การวิเคราะห์สหสัมพันธ์",
+            status = "info",
+            solidHeader = TRUE,
+            width = 6,
+            actionButton("analyze_correlation", "วิเคราะห์ความสัมพันธ์", 
+                        class = "btn-info"),
+            verbatimTextOutput("correlation_result")
+          )
         ),
         
-        # แท็บใหม่สำหรับ Cryo-Fibrinogen Analysis
-        tabPanel("Cryo-Fibrinogen Analysis",
-                 fluidRow(
-                   column(12,
-                      conditionalPanel(
-                        condition = "output.data_exists",  # ใช้เพื่อแสดงเฉพาะเมื่อมีข้อมูล
-                        box(width = 12,
-                            title = "การวิเคราะห์ Cryo Volume (10-15 ml) กับ Fibrinogen",
-                            status = "primary",
-                            solidHeader = TRUE,
-                            
-                            # ตารางสรุปผล
-                            h4("ตารางสรุปผลการวิเคราะห์"),
-                            tableOutput("cryo_fibrinogen_table"),
-                            
-                            # กราฟแสดงความสัมพันธ์
-                            hr(),
-                            h4("กราฟแสดงความสัมพันธ์"),
-                            plotOutput("cryo_fibrinogen_plot", height = "500px")
-                        )
-                      )
-                   )
-                 )
+        fluidRow(
+          safe_box(
+            title = "Power Analysis",
+            status = "success",
+            solidHeader = TRUE,
+            width = 12,
+            numericInput("effect_size", "Effect Size:", 
+                        value = 0.5, min = 0),
+            numericInput("significance_level", "ระดับนัยสำคัญ (Alpha):", 
+                        value = 0.05, min = 0, max = 1, step = 0.01),
+            numericInput("power", "Power (1 - Beta):", 
+                        value = 0.8, min = 0, max = 1, step = 0.01),
+            actionButton("power_analysis", "วิเคราะห์ Power", 
+                        class = "btn-success"),
+            verbatimTextOutput("power_result")
+          )
+        )
+      ),
+      
+      # แท็บกราฟ
+      tabItem(tabName = "plots",
+        fluidRow(
+          safe_box(
+            title = "การแสดงผลกราฟ",
+            status = "warning",
+            solidHeader = TRUE,
+            width = 12,
+            tabsetPanel(
+              tabPanel("Q-Q Plot", plotOutput("qq_plot")),
+              tabPanel("Histogram", 
+                      actionButton("plot_histogram", "แสดง Histogram", 
+                                  class = "btn-warning"),
+                      plotOutput("histogram_plot")),
+              tabPanel("Scatter Plot", plotOutput("scatter_plot")),
+              tabPanel("Cryo-Fibrinogen", plotOutput("cryo_fibrinogen_plot"))
+            )
+          )
+        )
+      ),
+      
+      # แท็บสรุป
+      tabItem(tabName = "summary",
+        fluidRow(
+          safe_box(
+            title = "ตารางสรุป",
+            status = "primary",
+            solidHeader = TRUE,
+            width = 12,
+            actionButton("show_summary_table", "แสดงตารางสรุป", 
+                        class = "btn-secondary"),
+            DTOutput("summary_table")
+          )
         )
       )
     )
