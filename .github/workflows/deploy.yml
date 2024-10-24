@@ -4,29 +4,25 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
-  check-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     
     env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       RSCONNECT_TOKEN: ${{ secrets.RSCONNECT_TOKEN }}
       RSCONNECT_SECRET: ${{ secrets.RSCONNECT_SECRET }}
-      R_LIBS_USER: ${{ github.workspace }}/R/library
       
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-    - name: Setup R
-      uses: r-lib/actions/setup-r@v2
+    - uses: r-lib/actions/setup-r@v2
       with:
         r-version: '4.4.1'
-        use-public-rspm: true
+
+    - uses: r-lib/actions/setup-pandoc@v2
 
     - name: Install system dependencies
       run: |
@@ -36,77 +32,61 @@ jobs:
           libssl-dev \
           libxml2-dev \
           libfontconfig1-dev \
-          libfreetype6-dev \
           libharfbuzz-dev \
           libfribidi-dev \
+          libfreetype6-dev \
           libpng-dev \
           libtiff5-dev \
           libjpeg-dev
 
-    - name: Cache R packages
-      uses: actions/cache@v3
-      with:
-        path: ${{ env.R_LIBS_USER }}
-        key: ${{ runner.os }}-r-${{ hashFiles('DESCRIPTION') }}
-        restore-keys: ${{ runner.os }}-r-
-
-    - name: Install R package dependencies
-      uses: r-lib/actions/setup-r-dependencies@v2
-      with:
-        extra-packages: |
-          any::rsconnect
-          any::shiny
-          any::shinydashboard
-          any::shinyjs
-          any::DT
-          any::googlesheets4
-          any::ggplot2
-          any::data.table
-          any::Rcpp
-          any::memoise
-          any::pwr
-          any::htmltools
-
-    - name: Check R package
-      if: github.event_name == 'pull_request'
+    - name: Install R dependencies
       run: |
-        Rscript -e 'if (!require("rcmdcheck")) install.packages("rcmdcheck")'
-        Rscript -e 'rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "warning")'
-
-    - name: Run tests
-      if: github.event_name == 'pull_request'
-      run: |
-        Rscript -e 'if (!require("testthat")) install.packages("testthat")'
-        Rscript -e 'testthat::test_dir("tests")'
+        install.packages(c(
+          'rsconnect',
+          'shiny',
+          'shinydashboard',
+          'shinyjs',
+          'DT',
+          'googlesheets4',
+          'ggplot2',
+          'data.table',
+          'Rcpp',
+          'memoise',
+          'pwr',
+          'htmltools'
+        ), repos = 'https://cloud.r-project.org/')
+      shell: Rscript {0}
 
     - name: Set up shinyapps.io
       run: |
         Rscript -e '
-          if (!require("rsconnect")) install.packages("rsconnect")
+          library(rsconnect)
           rsconnect::setAccountInfo(
             name="areliw",
             token=Sys.getenv("RSCONNECT_TOKEN"),
             secret=Sys.getenv("RSCONNECT_SECRET")
           )'
 
-    - name: Check dependencies before deployment
+    - name: Deploy to shinyapps.io
       run: |
         Rscript -e '
+          library(rsconnect)
+          # ตรวจสอบ package ที่จำเป็น
           required_packages <- c(
             "shiny", "shinydashboard", "shinyjs", "DT",
             "googlesheets4", "ggplot2", "data.table", "Rcpp",
             "memoise", "pwr", "htmltools"
           )
-          missing_packages <- required_packages[!sapply(required_packages, requireNamespace, quietly = TRUE)]
+          
+          # ติดตั้ง package ที่ขาด
+          missing_packages <- required_packages[
+            !sapply(required_packages, requireNamespace, quietly = TRUE)
+          ]
           if (length(missing_packages) > 0) {
-            stop("Missing required packages: ", paste(missing_packages, collapse = ", "))
+            install.packages(missing_packages, repos = "https://cloud.r-project.org/")
           }
-          message("All required packages are installed.")'
-
-    - name: Deploy to shinyapps.io
-      if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-      run: |
-        Rscript -e '
+          
+          # Deploy app
           rsconnect::deployApp(
             appName = "pbestapp",
             appFiles = c(
@@ -120,9 +100,3 @@ jobs:
             forceUpdate = TRUE,
             launch.browser = FALSE
           )'
-
-    - name: Verify deployment
-      if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-      run: |
-        echo "Checking if the app is accessible..."
-        curl -I "https://areliw.shinyapps.io/pbestapp/"
