@@ -1,5 +1,6 @@
 # server.R
 server <- function(input, output, session) {
+  # Reactive values
   rv <- reactiveValues(
     data = NULL,
     error = NULL,
@@ -18,19 +19,13 @@ server <- function(input, output, session) {
           rv$data <- data
           rv$loading <- FALSE
           showNotification("โหลดข้อมูลสำเร็จ!", type = "success")
-          
-          # Preview data
-          output$data_preview <- renderDT({
-            datatable(rv$data,
-                     options = list(pageLength = 10,
-                                  scrollX = TRUE),
-                     rownames = FALSE)
-          })
-          
         }, error = function(e) {
           rv$error <- e$message
           rv$loading <- FALSE
-          showNotification(paste("เกิดข้อผิดพลาด:", e$message), type = "error")
+          showNotification(
+            paste("เกิดข้อผิดพลาด:", e$message), 
+            type = "error"
+          )
         })
       }
     )
@@ -61,3 +56,11 @@ server <- function(input, output, session) {
   plots_module(input, output, reactive(rv$data))
   summary_table_module(input, output, reactive(rv$data))
 }
+
+# รัน app
+tryCatch({
+  initialize_app()
+}, error = function(e) {
+  message("Error initializing application: ", e$message)
+  quit(status = 1)
+})
