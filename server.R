@@ -14,6 +14,9 @@ server <- function(input, output, session) {
     loading = FALSE
   )
 
+  # ตั้งค่าให้อ่านข้อมูลจากชีต "CryoR"
+  sheet_url <- "https://docs.google.com/spreadsheets/d/13oJHWG48vVJrh5WwkFzI0T0j9niPxvx3Gz4rwFX8js4/edit#gid=1940769691"
+
   # Data loading
   observeEvent(input$load_data, {
     rv$loading <- TRUE
@@ -24,7 +27,6 @@ server <- function(input, output, session) {
       value = 0,
       {
         tryCatch({
-          sheet_url <- "https://docs.google.com/spreadsheets/d/13oJHWG48vVJrh5WwkFzI0T0j9niPxvx3Gz4rwFX8js4/edit?gid=1940769691#gid=1940769691"  # ใส่ URL ของ Google Sheets ที่คุณให้มา
           data <- load_data_module(sheet_url)
           rv$data <- data
           rv$loading <- FALSE
