@@ -1,19 +1,50 @@
 # global.R
-
+library(shiny)
+library(shinydashboard)
 library(googlesheets4)
 library(ggplot2)
-library(shiny)
-library(pwr)
 library(data.table)
+library(pwr)
 library(Rcpp)
+library(shinyjs)
+library(DT)
 
-# ใช้การเข้าถึงแบบไม่ต้องลงชื่อเข้าใช้ (Deauthorize)
+# Initialize error handling
+options(shiny.error = function() {
+  stop.function <- function() {
+    tags$div(
+      class = "shiny-output-error-validation",
+      "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้งหรือติดต่อผู้ดูแลระบบ"
+    )
+  }
+  stop.function
+})
+
+ensure_plot_device <- function() {
+  if (!dev.cur()) {
+    pdf(NULL)
+  }
+}
+
+safe_box <- function(...) {
+  tryCatch({
+    ensure_plot_device()
+    shinydashboard::box(...)
+  }, error = function(e) {
+    div(
+      class = "alert alert-warning",
+      "ไม่สามารถแสดงผลได้ กรุณารีเฟรชหน้าเว็บ"
+    )
+  })
+}
+
+# ใช้การเข้าถึงแบบไม่ต้องลงชื่อเข้าใช้
 gs4_deauth()
 
-# ลิงก์ของ Google Sheets ที่คุณต้องการดึงข้อมูล
+# ลิงก์ของ Google Sheets
 sheet_url <- "https://docs.google.com/spreadsheets/d/13oJHWG48vVJrh5WwkFzI0T0j9niPxvx3Gz4rwFX8js4/edit#gid=1940769691"
 
-# สร้างฟังก์ชัน C++ สำหรับการคำนวณสถิติ
+# C++ function สำหรับการคำนวณสถิติ
 cppFunction('
 NumericVector compute_stats(NumericVector x) {
   int n = x.size();
