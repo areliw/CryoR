@@ -1,114 +1,40 @@
 # ui.R
-
 ui <- dashboardPage(
   skin = "blue",
   
-  # Header
   dashboardHeader(
     title = "วิเคราะห์ข้อมูลทางคลินิก",
     titleWidth = 350
   ),
-
-  # Sidebar
+  
   dashboardSidebar(
     width = 350,
     sidebarMenu(
       id = "sidebar",
-      # ข้อมูล
-      menuItem(
-        text = "ข้อมูล",
-        tabName = "data",
-        icon = icon("database"),
-        startExpanded = TRUE,
-        menuSubItem(
-          text = "โหลดข้อมูล",
-          tabName = "load_data",
-          icon = icon("cloud-download")
-        ),
-        menuSubItem(
-          text = "ดูข้อมูล",
-          tabName = "view_data",
-          icon = icon("table")
-        )
+      menuItem("ข้อมูล", tabName = "data", icon = icon("database"),
+        menuSubItem("โหลดข้อมูล", tabName = "load_data", icon = icon("cloud-download")),
+        menuSubItem("ดูข้อมูล", tabName = "view_data", icon = icon("table"))
       ),
-      
-      # การวิเคราะห์
-      menuItem(
-        text = "การวิเคราะห์",
-        tabName = "analysis",
-        icon = icon("chart-line"),
-        startExpanded = TRUE,
-        menuSubItem(
-          text = "สถิติเชิงพรรณนา",
-          tabName = "descriptive",
-          icon = icon("calculator")
-        ),
-        menuSubItem(
-          text = "การทดสอบการแจกแจง",
-          tabName = "normality",
-          icon = icon("chart-bar")
-        ),
-        menuSubItem(
-          text = "การวิเคราะห์สหสัมพันธ์",
-          tabName = "correlation",
-          icon = icon("project-diagram")
-        ),
-        menuSubItem(
-          text = "Power Analysis",
-          tabName = "power",
-          icon = icon("tachometer-alt")
-        )
+      menuItem("การวิเคราะห์", tabName = "analysis", icon = icon("chart-line"),
+        menuSubItem("สถิติเชิงพรรณนา", tabName = "descriptive", icon = icon("calculator")),
+        menuSubItem("การทดสอบการแจกแจง", tabName = "normality", icon = icon("chart-bar")),
+        menuSubItem("การวิเคราะห์สหสัมพันธ์", tabName = "correlation", icon = icon("project-diagram")),
+        menuSubItem("Power Analysis", tabName = "power", icon = icon("tachometer"))
       ),
-      
-      # กราฟ
-      menuItem(
-        text = "การแสดงผลกราฟ",
-        tabName = "plots",
-        icon = icon("chart-area"),
-        startExpanded = TRUE,
-        menuSubItem(
-          text = "Q-Q Plot",
-          tabName = "qq_plot",
-          icon = icon("chart-line")
-        ),
-        menuSubItem(
-          text = "Histogram",
-          tabName = "histogram",
-          icon = icon("chart-bar")
-        ),
-        menuSubItem(
-          text = "Scatter Plot",
-          tabName = "scatter",
-          icon = icon("scatter-plot")
-        )
+      menuItem("กราฟ", tabName = "plots", icon = icon("chart-area"),
+        menuSubItem("Q-Q Plot", tabName = "qq_plot", icon = icon("line-chart")),
+        menuSubItem("Histogram", tabName = "histogram", icon = icon("bar-chart")),
+        menuSubItem("Scatter Plot", tabName = "scatter", icon = icon("chart-scatter"))
       ),
-      
-      # สรุปผล
-      menuItem(
-        text = "สรุปผล",
-        tabName = "summary",
-        icon = icon("file-alt")
-      )
+      menuItem("สรุปผล", tabName = "summary", icon = icon("file-alt"))
     )
   ),
   
-  # Body
   dashboardBody(
-    # Load custom CSS
-    tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
-      tags$style(HTML("
-        .content-wrapper { padding-top: 20px; }
-        .box { margin-bottom: 20px; }
-        .loading-spinner { margin: 20px; }
-      "))
-    ),
-    
     useShinyjs(),
-    
-    # Custom notifications
-    div(id = "notification-area", 
-        style = "position: fixed; top: 20px; right: 20px; z-index: 9999;"),
+    tags$head(
+      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+    ),
     
     tabItems(
       # Tab ข้อมูล
